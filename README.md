@@ -1,8 +1,10 @@
 # Dev Patel — Portfolio
 
-Personal portfolio of Dev Patel — Founder, Builder, Explorer.
+I don't wait for the world to change. I build the change.
 
-**Live:** [devpatel.in](https://devpatel.in)
+This is the source behind **[devpatel.in](https://devpatel.in)** — my personal portfolio, built from scratch, shipped with obsession. No frameworks, no shortcuts. Just clean code, sharp design, and a story worth reading.
+
+Founder of Navdek. BTech CS. Turning curiosity into creation.
 
 ---
 
