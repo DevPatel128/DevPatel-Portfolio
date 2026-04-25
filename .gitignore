@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+*.DS_Store
+.AppleDouble
+.LSOverride
+
+# AI workflow / internal docs (not part of website)
+CLAUDE.md
+claude.md
+AGENTS.md
+research.md
+about-workspace.png
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Netlify CLI
+.netlify/
+
+# Misc
+*.log

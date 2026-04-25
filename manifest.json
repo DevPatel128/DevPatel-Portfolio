@@ -1,0 +1,18 @@
+{
+  "name": "Dev Patel — Builder. Founder. Explorer.",
+  "short_name": "Dev Patel",
+  "description": "Portfolio of Dev Patel — Founder of Navdek, Cloud & Security engineer, and relentless builder.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ece5d6",
+  "theme_color": "#c4572a",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
