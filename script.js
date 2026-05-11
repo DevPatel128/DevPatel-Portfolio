@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     animateCursor();
 
     // Cursor hover effects
-    const hoverables = document.querySelectorAll('a, button, .service-card, .skill-card, .trait, .case-image');
+    const hoverables = document.querySelectorAll('a, button, select, .service-card, .skill-card, .project-card, .deep-card, .trust-card, .trait, .case-image');
     hoverables.forEach(el => {
         el.addEventListener('mouseenter', () => {
             cursor?.classList.add('hovering');
@@ -118,11 +118,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }, i * 120);
         });
 
-        // Start typewriter after hero fades in
+        // Start rotating hero text after hero fades in
         setTimeout(startTypewriter, 1400);
+        setTimeout(startHeroRotatingText, 1600);
     }
 
-    // ── TYPEWRITER ──
+    // ── TYPEWRITER (existing, targets #typewriter-text if present) ──
     const typewriterEl = document.getElementById('typewriter-text');
     const typewriterPhrases = [
         'I build the change.',
@@ -140,7 +141,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startTypewriter() {
         if (!typewriterEl) return;
-        // Skip on reduced motion
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         tickTypewriter();
     }
@@ -167,6 +167,85 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+
+    // ── HERO ROTATING TEXT (typewriter style) ──
+    const heroTwEl = document.getElementById('heroRotatingTextContent');
+    const heroTwPhrases = [
+        'I build fast, secure websites.',
+        'I ship things that matter.',
+        'I turn ideas into products.',
+        'I move fast. I move smart.',
+        'I don\'t wait for the world to change.',
+        'I build for founders, brands, operators.',
+        'I design systems. I write code. I ship.',
+    ];
+    let hIdx = 0, hChar = 0, hDeleting = false;
+    const H_TYPE = 55, H_DELETE = 30, H_PAUSE = 2600;
+
+    function startHeroRotatingText() {
+        if (!heroTwEl) return;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            heroTwEl.textContent = heroTwPhrases[0];
+            return;
+        }
+        tickHeroTw();
+    }
+
+    function tickHeroTw() {
+        const phrase = heroTwPhrases[hIdx];
+        if (hDeleting) {
+            hChar--;
+            heroTwEl.textContent = phrase.slice(0, hChar);
+            if (hChar === 0) {
+                hDeleting = false;
+                hIdx = (hIdx + 1) % heroTwPhrases.length;
+                setTimeout(tickHeroTw, 350);
+            } else {
+                setTimeout(tickHeroTw, H_DELETE);
+            }
+        } else {
+            hChar++;
+            heroTwEl.textContent = phrase.slice(0, hChar);
+            if (hChar === phrase.length) {
+                setTimeout(() => { hDeleting = true; tickHeroTw(); }, H_PAUSE);
+            } else {
+                setTimeout(tickHeroTw, H_TYPE);
+            }
+        }
+    }
+
+    // ── TIME SLOT SELECTION ──
+    const slotBtns = document.querySelectorAll('.time-slot-btn');
+    const slotInput = document.getElementById('preferredTime');
+    const selectedSlots = [];
+
+    slotBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const val = btn.getAttribute('data-value');
+            const isSelected = btn.classList.contains('selected');
+
+            if (isSelected) {
+                btn.classList.remove('selected');
+                const i = selectedSlots.indexOf(val);
+                if (i > -1) selectedSlots.splice(i, 1);
+            } else {
+                if (selectedSlots.length >= 2) return;
+                btn.classList.add('selected');
+                selectedSlots.push(val);
+            }
+
+            slotBtns.forEach(b => {
+                if (!b.classList.contains('selected')) {
+                    b.classList.toggle('disabled', selectedSlots.length >= 2);
+                }
+            });
+
+            if (slotInput) slotInput.value = selectedSlots.join(', ');
+        });
+
+        btn.addEventListener('mouseenter', () => { cursor?.classList.add('hovering'); follower?.classList.add('hovering'); });
+        btn.addEventListener('mouseleave', () => { cursor?.classList.remove('hovering'); follower?.classList.remove('hovering'); });
+    });
 
     // ── STAT COUNTER ANIMATION ──
     const statNumbers = document.querySelectorAll('.stat-number[data-target]');
@@ -329,16 +408,16 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => {
             if (response.ok) {
                 btn.innerHTML = 'SENT ✓';
-                btn.style.background = '#22c55e';
+                btn.style.background = 'var(--success)';
                 form.reset();
             } else {
                 btn.innerHTML = 'FAILED ✗';
-                btn.style.background = '#ef4444';
+                btn.style.background = 'var(--danger)';
             }
         })
         .catch(() => {
             btn.innerHTML = 'FAILED ✗';
-            btn.style.background = '#ef4444';
+            btn.style.background = 'var(--danger)';
         })
         .finally(() => {
             setTimeout(() => {
@@ -352,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // ── TILT EFFECT ON SERVICE CARDS ──
-    const cards = document.querySelectorAll('.service-card, .skill-card');
+    const cards = document.querySelectorAll('.service-card, .skill-card, .project-card');
     cards.forEach(card => {
         card.addEventListener('mousemove', (e) => {
             if (window.innerWidth <= 768) return;

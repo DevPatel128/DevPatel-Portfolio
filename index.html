@@ -5,12 +5,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://formsubmit.co; form-action https://formsubmit.co;" />
-    <title>Dev Patel — Founder, Builder & Engineer | Bengaluru</title>
+    <title>Dev Patel — Founder & Builder</title>
     <meta name="description"
-        content="Portfolio of Dev Patel — Founder of Navdek, Cloud & Security engineer, and relentless builder based in Bengaluru, India who turns curiosity into creation." />
+        content="Dev Patel builds fast, secure websites and digital systems for brands, founders, and operators who need strategy, execution, and measurable results." />
     <!-- Open Graph -->
-    <meta property="og:title" content="Dev Patel — Founder, Builder & Engineer | Bengaluru" />
-    <meta property="og:description" content="Founder of Navdek · Cloud & Security Engineer · BTech CS, Jain University. Builder and entrepreneur based in Bengaluru turning curiosity into creation." />
+    <meta property="og:title" content="Dev Patel — Founder & Builder" />
+    <meta property="og:description" content="Fast, secure websites and digital systems for brands, founders, and operators who need strategy, execution, and measurable results." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://devpatel.in/" />
     <meta property="og:image" content="https://devpatel.in/og-image.png" />
@@ -21,8 +21,8 @@
 
     <!-- Twitter / X Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Dev Patel — Founder, Builder & Engineer | Bengaluru" />
-    <meta name="twitter:description" content="Founder of Navdek · Cloud & Security Engineer · BTech CS, Jain University. Builder and entrepreneur based in Bengaluru turning curiosity into creation." />
+    <meta name="twitter:title" content="Dev Patel — Founder & Builder" />
+    <meta name="twitter:description" content="Fast, secure websites and digital systems for brands, founders, and operators who need strategy, execution, and measurable results." />
     <meta name="twitter:image" content="https://devpatel.in/og-image.png" />
     <meta name="twitter:site" content="@DevPatel128" />
     <meta name="twitter:creator" content="@DevPatel128" />
@@ -50,8 +50,8 @@
       "name": "Dev Patel",
       "url": "https://devpatel.in",
       "jobTitle": "Founder & Builder",
-      "description": "Founder of Navdek, Cloud & Security engineer, and relentless builder who turns curiosity into creation.",
-      "image": "https://devpatel.in/hero.png",
+      "description": "Founder of Navdek and builder creating fast, secure websites and digital systems for brands, founders, and operators.",
+      "image": "https://devpatel.in/hero.jpg",
       "worksFor": {
         "@type": "Organization",
         "name": "NAVDEK",
@@ -65,7 +65,8 @@
         "https://www.linkedin.com/in/dev-patel-128-/",
         "https://www.instagram.com/experiencebydev/",
         "https://github.com/DevPatel128",
-        "https://x.com/DevPatel128"
+        "https://x.com/DevPatel128",
+        "https://substack.com/@devpatel1286"
       ]
     }
     </script>
@@ -84,11 +85,47 @@
     }
     </script>
 
-    <link rel="preload" as="image" href="hero.png" />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "CreativeWork",
+          "name": "Stronghold Windows Website",
+          "creator": { "@type": "Person", "name": "Dev Patel" },
+          "url": "https://strongholdwindows.co/",
+          "description": "Premium window brand website and digital ecosystem built through Navdek."
+        },
+        {
+          "@type": "CreativeWork",
+          "name": "Janki Papad Digital Channel",
+          "creator": { "@type": "Person", "name": "Dev Patel" },
+          "url": "https://jankipapad.com",
+          "description": "Digital sales channel and brand system for Janki Papad."
+        },
+        {
+          "@type": "CreativeWork",
+          "name": "The Moments Club",
+          "creator": { "@type": "Person", "name": "Dev Patel" },
+          "url": "https://www.instagram.com/experiencebydev/",
+          "description": "Open-ended editorial photography project by Dev Patel, with more coming soon."
+        },
+        {
+          "@type": "CreativeWork",
+          "name": "Farmers Direct",
+          "creator": { "@type": "Person", "name": "Dev Patel" },
+          "url": "https://github.com/Anbu-2006/farmers_direct",
+          "description": "Transdisciplinary Project Centric Learning project built with a team to explore direct farmer-to-customer access."
+        }
+      ]
+    }
+    </script>
+
+    <link rel="preload" as="image" href="hero.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
 </head>
@@ -117,10 +154,11 @@
         <div class="nav-links" id="navLinks">
             <a href="#about" class="nav-link">ABOUT</a>
             <a href="#journey" class="nav-link">JOURNEY</a>
+            <a href="#work" class="nav-link">WORK</a>
             <a href="#navdek" class="nav-link">NAVDEK</a>
             <a href="#janki" class="nav-link">JANKI</a>
-            <a href="#moments" class="nav-link">MOMENTS</a>
             <a href="#skills" class="nav-link">ARSENAL</a>
+            <a href="#trust" class="nav-link">TRUST</a>
             <a href="#contact" class="nav-link">CONNECT</a>
         </div>
         <button class="hamburger" id="hamburger" aria-label="Toggle menu">
@@ -132,10 +170,11 @@
     <div class="mobile-menu" id="mobileMenu">
         <a href="#about" class="mobile-link">ABOUT</a>
         <a href="#journey" class="mobile-link">JOURNEY</a>
+        <a href="#work" class="mobile-link">WORK</a>
         <a href="#navdek" class="mobile-link">NAVDEK</a>
         <a href="#janki" class="mobile-link">JANKI</a>
-        <a href="#moments" class="mobile-link">MOMENTS</a>
         <a href="#skills" class="mobile-link">ARSENAL</a>
+        <a href="#trust" class="mobile-link">TRUST</a>
         <a href="#contact" class="mobile-link">CONNECT</a>
     </div>
 
@@ -147,19 +186,16 @@
         <div class="hero-content">
             <div class="hero-tag reveal-up">
                 <span class="tag-line"></span>
-                <span class="tag-text">BENGALURU, INDIA</span>
+                <span class="tag-text">FOUNDER · BUILDER</span>
             </div>
             <h1 class="hero-name">
                 <span class="name-line reveal-up" style="--delay: 0.1s">DEV</span>
                 <span class="name-line reveal-up stroke-text" style="--delay: 0.25s">PATEL</span>
             </h1>
-            <p class="hero-tagline reveal-up" style="--delay: 0.4s">
-                I don't wait for the world to change. <br class="hide-mobile" />
-                <em id="typewriter-text">I build the change.</em><span class="typewriter-cursor" aria-hidden="true">|</span>
-            </p>
-            <div class="hero-cta reveal-up" style="--delay: 0.55s">
-                <a href="#navdek" class="btn-primary">SEE MY WORK</a>
-                <a href="#contact" class="btn-outline">LET'S TALK</a>
+            <p class="hero-rotating-text" aria-live="polite" aria-atomic="true"><span id="heroRotatingTextContent"></span><span class="typewriter-cursor">|</span></p>
+            <div class="hero-cta reveal-up" style="--delay: 0.4s">
+                <a href="#work" class="btn-primary">VIEW WORK <span class="btn-arrow">→</span></a>
+                <a href="#contact" class="btn-outline">CONTACT ME →</a>
             </div>
             <div class="hero-scroll-indicator reveal-up" style="--delay: 0.7s">
                 <div class="scroll-mouse">
@@ -170,21 +206,135 @@
         </div>
         <div class="hero-right">
             <div class="hero-image reveal-up" style="--delay: 0.3s">
-                <img src="hero.png" alt="Dev Patel, Founder of Navdek and builder based in Bengaluru" loading="eager" />
+                <div class="hero-image-glow" aria-hidden="true"></div>
+                <img src="hero.jpg" alt="Dev Patel, Founder of Navdek and builder based in Bengaluru" loading="eager" />
             </div>
             <div class="hero-stats">
                 <div class="stat reveal-up" style="--delay: 0.6s">
-                    <span class="stat-number" data-target="3">0</span><span class="accent">+</span>
-                    <span class="stat-label">VENTURES</span>
+                    <span class="stat-number" data-target="5">0</span><span class="accent">+</span>
+                    <span class="stat-label">SHIPPED BUILDS</span>
                 </div>
                 <div class="stat reveal-up" style="--delay: 0.7s">
                     <span class="stat-number" data-target="2024">0</span>
                     <span class="stat-label">SINCE</span>
                 </div>
                 <div class="stat reveal-up" style="--delay: 0.8s">
-                    <span class="stat-number" data-target="100">0</span><span class="accent">%</span>
-                    <span class="stat-label">COMMITTED</span>
+                    <span class="stat-number" data-target="6">0</span>
+                    <span class="stat-label">FIGURE RESULT</span>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WORK / PROJECTS -->
+    <section id="work">
+        <div class="section-container">
+            <div class="section-label reveal-up">
+                <span class="label-number">01</span>
+                <span class="label-line"></span>
+                <span class="label-text">SELECTED WORK</span>
+            </div>
+            <h2 class="section-heading reveal-up">
+                Proof over claims. <span class="accent">Built, launched, measured.</span>
+            </h2>
+            <div class="projects-grid">
+                <article class="project-card reveal-up" style="--delay: 0.05s">
+                    <img src="stronghold.jpg" alt="Stronghold Windows website preview" loading="lazy" />
+                    <div class="project-body">
+                        <span class="project-kicker">CLIENT WEBSITE</span>
+                        <h3>Stronghold Windows</h3>
+                        <p><strong>Problem:</strong> Premium aluminium brand needed trust, positioning, and conversion-ready digital presence.</p>
+                        <p><strong>Stack:</strong> HTML, CSS, JavaScript, brand strategy, content systems.</p>
+                        <p><strong>Result:</strong> Live premium website plus social presence for sales credibility.</p>
+                        <div class="case-links">
+                            <a href="https://strongholdwindows.co/" target="_blank" rel="noopener noreferrer" class="btn-primary btn-small">LIVE →</a>
+                        </div>
+                    </div>
+                </article>
+                <article class="project-card reveal-up" style="--delay: 0.1s">
+                    <img src="janki-hero.jpg" alt="Janki Papad digital commerce preview" loading="lazy" />
+                    <div class="project-body">
+                        <span class="project-kicker">DIGITAL CHANNEL</span>
+                        <h3>Janki Papad</h3>
+                        <p><strong>Problem:</strong> Legacy food brand had no digital sales channel or modern operating workflow.</p>
+                        <p><strong>Stack:</strong> E-commerce website, social content, process design, customer support ops.</p>
+                        <p><strong>Result:</strong> Crossed 6 figures in revenue in the first 30 days from cold start, no ad spend.</p>
+                        <div class="case-links">
+                            <a href="https://jankipapad.com" target="_blank" rel="noopener noreferrer" class="btn-primary btn-small">LIVE →</a>
+                            <a href="https://github.com/DevPatel128" target="_blank" rel="noopener noreferrer" class="btn-outline btn-small">GITHUB →</a>
+                        </div>
+                    </div>
+                </article>
+                <article class="project-card reveal-up" style="--delay: 0.15s">
+                    <img src="moments.jpg" alt="The Moments Club photography preview" loading="lazy" />
+                    <div class="project-body">
+                        <span class="project-kicker">CREATIVE SYSTEM</span>
+                        <h3>The Moments Club</h3>
+                        <p><strong>Problem:</strong> Personal photography needed a focused identity without closing the door on what it can become.</p>
+                        <p><strong>Stack:</strong> Editorial photography, Instagram, visual direction, content curation.</p>
+                        <p><strong>Result:</strong> Open visual journal for architecture, travel, streets, and whatever starts feeling worth chasing next.</p>
+                        <div class="case-links">
+                            <a href="https://www.instagram.com/experiencebydev/" target="_blank" rel="noopener noreferrer" class="btn-primary btn-small">INSTAGRAM →</a>
+                        </div>
+                    </div>
+                </article>
+                <article class="project-card reveal-up" style="--delay: 0.2s">
+                    <div class="project-visual project-visual-farm" role="img" aria-label="Farmers Direct project interface concept">
+                        <span>FD</span>
+                    </div>
+                    <div class="project-body">
+                        <span class="project-kicker">TPCL TEAM PROJECT</span>
+                        <h3>Farmers Direct</h3>
+                        <p><strong>Problem:</strong> Farmers need cleaner direct access to buyers without unnecessary middle layers.</p>
+                        <p><strong>Stack:</strong> Team-built GitHub project for Transdisciplinary Project Centric Learning.</p>
+                        <p><strong>Result:</strong> Academic product build exploring farmer-to-customer connection and practical agri-commerce workflows.</p>
+                        <div class="case-links">
+                            <a href="https://github.com/Anbu-2006/farmers_direct" target="_blank" rel="noopener noreferrer" class="btn-primary btn-small">GITHUB →</a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            <div class="case-study-deep reveal-up" style="--delay: 0.2s">
+                <article class="deep-card">
+                    <span class="project-kicker">CASE STUDY</span>
+                    <h3>Stronghold Windows</h3>
+                    <div class="deep-grid">
+                        <p><strong>Challenge:</strong> Make a technical aluminium window brand feel premium, reliable, and sales-ready online.</p>
+                        <p><strong>Execution:</strong> Built website direction, content hierarchy, brand tone, visual positioning, and social proof flow.</p>
+                        <p><strong>Proof:</strong> Live site, approved screenshots, and active Instagram presence.</p>
+                        <p><strong>Link:</strong> <a href="https://strongholdwindows.co/" target="_blank" rel="noopener noreferrer">strongholdwindows.co</a></p>
+                    </div>
+                </article>
+                <article class="deep-card">
+                    <span class="project-kicker">CASE STUDY</span>
+                    <h3>Janki Papad</h3>
+                    <div class="deep-grid">
+                        <p><strong>Challenge:</strong> Take a legacy food brand from offline-first to digital sales and cleaner operations.</p>
+                        <p><strong>Execution:</strong> Built web channel, content system, customer flow, and team process around real daily operations.</p>
+                        <p><strong>Proof:</strong> Crossed 6 figures in revenue in first 30 days from cold start, no ad spend.</p>
+                        <p><strong>Links:</strong> <a href="https://jankipapad.com" target="_blank" rel="noopener noreferrer">jankipapad.com</a> · <a href="https://github.com/DevPatel128" target="_blank" rel="noopener noreferrer">GitHub</a></p>
+                    </div>
+                </article>
+                <article class="deep-card">
+                    <span class="project-kicker">COMING SOON</span>
+                    <h3>The Moments Club</h3>
+                    <div class="deep-grid">
+                        <p><strong>Direction:</strong> An evolving visual archive. Part photography project, part memory system, part future product surface.</p>
+                        <p><strong>Now:</strong> Instagram-first publishing for architecture, travel, streets, and overlooked moments.</p>
+                        <p><strong>Next:</strong> More formats, more stories, and maybe a standalone home when the idea earns it.</p>
+                        <p><strong>Link:</strong> <a href="https://www.instagram.com/experiencebydev/" target="_blank" rel="noopener noreferrer">@experiencebydev</a></p>
+                    </div>
+                </article>
+                <article class="deep-card">
+                    <span class="project-kicker">TPCL PROJECT</span>
+                    <h3>Farmers Direct</h3>
+                    <div class="deep-grid">
+                        <p><strong>Context:</strong> Built as a Transdisciplinary Project Centric Learning project with a team.</p>
+                        <p><strong>Focus:</strong> Direct farmer-to-customer access, cleaner discovery, and practical agri-commerce thinking.</p>
+                        <p><strong>Role:</strong> Collaborative product and engineering contribution inside a team build.</p>
+                        <p><strong>Link:</strong> <a href="https://github.com/Anbu-2006/farmers_direct" target="_blank" rel="noopener noreferrer">GitHub repository</a></p>
+                    </div>
+                </article>
             </div>
         </div>
     </section>
@@ -205,7 +355,7 @@
     <section id="about">
         <div class="section-container">
             <div class="section-label reveal-up">
-                <span class="label-number">01</span>
+                <span class="label-number">02</span>
                 <span class="label-line"></span>
                 <span class="label-text">WHO I AM</span>
             </div>
@@ -233,7 +383,7 @@
                         day, in the trenches, building things that matter.
                     </p>
                     <div class="about-workspace-img reveal-up" style="--delay: 0.4s">
-                        <img src="about-workspace.png" alt="Dev Patel's workspace — where ideas become products" loading="lazy" />
+                        <img src="about-workspace.jpg" alt="Dev Patel's workspace — where ideas become products" loading="lazy" />
                         <span class="workspace-caption">WHERE IDEAS BECOME PRODUCTS</span>
                     </div>
                 </div>
@@ -275,7 +425,7 @@
     <section id="journey">
         <div class="section-container">
             <div class="section-label reveal-up">
-                <span class="label-number">02</span>
+                <span class="label-number">03</span>
                 <span class="label-line"></span>
                 <span class="label-text">THE JOURNEY</span>
             </div>
@@ -316,7 +466,7 @@
                         <div class="timeline-company">JANKI PAPAD</div>
                         <p class="timeline-desc">
                             Built and launched Janki's first digital sales channel from scratch.
-                            <strong>6 figures in revenue in the first 30 days</strong>. Cold start, no prior
+                            <strong>crossed 6 figures in revenue in the first 30 days</strong>. Cold start, no prior
                             online presence, no ad spend. Made every stack decision, ran the deployment,
                             and still handles the customer support line.
                         </p>
@@ -421,7 +571,7 @@
     <section id="navdek">
         <div class="section-container">
             <div class="section-label reveal-up">
-                <span class="label-number">03</span>
+                <span class="label-number">04</span>
                 <span class="label-line"></span>
                 <span class="label-text">THE COMPANY</span>
             </div>
@@ -475,7 +625,7 @@
                 </div>
                 <div class="case-grid">
                     <div class="case-image">
-                        <img src="stronghold.png" alt="Stronghold Windows - Built by Navdek" />
+                        <img src="stronghold.jpg" alt="Stronghold Windows - Built by Navdek" loading="lazy" />
                         <div class="case-image-overlay">
                             <span>LIVE PROJECT</span>
                         </div>
@@ -512,7 +662,7 @@
     <section id="janki">
         <div class="section-container">
             <div class="section-label reveal-up">
-                <span class="label-number">04</span>
+                <span class="label-number">05</span>
                 <span class="label-line"></span>
                 <span class="label-text">THE BRAND</span>
             </div>
@@ -527,7 +677,7 @@
                         <span class="ns-label">SINCE</span>
                     </div>
                     <div class="navdek-stat">
-                        <span class="ns-value">6 FIGURES</span>
+                        <span class="ns-value">CROSSED 6 FIGURES</span>
                         <span class="ns-label">REVENUE IN 30 DAYS</span>
                     </div>
                     <div class="navdek-stat">
@@ -557,7 +707,7 @@
 
             <!-- JANKI FEATURE IMAGE -->
             <div class="janki-feature-img reveal-up" style="--delay: 0.15s">
-                <img src="janki-hero.png" alt="Janki Papad — Handcrafted Indian papad and spices" loading="lazy" />
+                <img src="janki-hero.jpg" alt="Janki Papad — Handcrafted Indian papad and spices" loading="lazy" />
                 <div class="janki-img-overlay">
                     <span class="janki-img-tag">HANDCRAFTED SINCE GENERATIONS</span>
                 </div>
@@ -575,7 +725,7 @@
     <section id="moments">
         <div class="section-container">
             <div class="section-label reveal-up">
-                <span class="label-number">05</span>
+                <span class="label-number">06</span>
                 <span class="label-line"></span>
                 <span class="label-text">THE PASSION</span>
             </div>
@@ -585,8 +735,8 @@
                 </h2>
                 <p class="moments-desc reveal-up" style="--delay: 0.1s">
                     Not every project needs a business case. Some things you build because they feed your soul.
-                    <em>The Moments Club</em> is my personal photography project, capturing the fleeting,
-                    the raw, the beautiful. Architecture, streets, moments that most people walk past.
+                    <em>The Moments Club</em> is my open visual archive: architecture, streets, travel, and fragments
+                    that feel too alive to leave behind. More formats coming soon.
                 </p>
             </div>
 
@@ -673,7 +823,7 @@
     <section id="skills">
         <div class="section-container">
             <div class="section-label reveal-up">
-                <span class="label-number">06</span>
+                <span class="label-number">07</span>
                 <span class="label-line"></span>
                 <span class="label-text">THE ARSENAL</span>
             </div>
@@ -683,7 +833,7 @@
             <p class="about-text reveal-up" style="--delay: 0.05s; text-align: center; margin-bottom: 2rem; font-size: 0.95rem; color: var(--text-muted); letter-spacing: 0.08em; font-family: var(--font-mono);">
                 CS FUNDAMENTALS: DSA · OOP · DBMS · SOFTWARE ENGINEERING
             </p>
-            <div class="skills-grid">
+            <div class="skills-grid grouped-skills">
                 <div class="skill-card reveal-up" style="--delay: 0.05s">
                     <div class="skill-icon">
                         <svg viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -789,11 +939,43 @@
         </div>
     </section>
 
+    <!-- TRUST / METRICS -->
+    <section id="trust">
+        <div class="section-container">
+            <div class="section-label reveal-up">
+                <span class="label-number">08</span>
+                <span class="label-line"></span>
+                <span class="label-text">TRUST SIGNALS</span>
+            </div>
+            <h2 class="section-heading reveal-up">
+                Real signals. <span class="accent">No inflated numbers.</span>
+            </h2>
+            <div class="trust-grid">
+                <div class="trust-card reveal-up" style="--delay: 0.05s">
+                    <span class="trust-value">CROSSED 6 FIGURES</span>
+                    <span class="trust-label">Janki revenue in first 30 days</span>
+                </div>
+                <div class="trust-card reveal-up" style="--delay: 0.1s">
+                    <span class="trust-value">189 TEAMS</span>
+                    <span class="trust-label">Top 25 at NavaNIEti Hackathon</span>
+                </div>
+                <div class="trust-card reveal-up" style="--delay: 0.15s">
+                    <span class="trust-value">2 TERMS</span>
+                    <span class="trust-label">Re-elected Cloud Club VP</span>
+                </div>
+                <div class="trust-card reveal-up" style="--delay: 0.2s">
+                    <span class="trust-value">3 FOUNDERS</span>
+                    <span class="trust-label">Navdek founding team</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- AWARDS / ACHIEVEMENTS -->
     <section id="awards">
         <div class="section-container">
             <div class="section-label reveal-up">
-                <span class="label-number">07</span>
+                <span class="label-number">09</span>
                 <span class="label-line"></span>
                 <span class="label-text">THE ACCOLADES</span>
             </div>
@@ -852,18 +1034,32 @@
     <section id="contact">
         <div class="section-container">
             <div class="section-label reveal-up">
-                <span class="label-number">08</span>
+                <span class="label-number">10</span>
                 <span class="label-line"></span>
                 <span class="label-text">LET'S CONNECT</span>
             </div>
             <div class="contact-grid">
                 <div class="contact-left">
-                    <h2 class="giant-text reveal-up">GOT AN<br /><span class="accent">IDEA?</span></h2>
+                    <h2 class="giant-text contact-heading reveal-up">GOT AN <span class="accent">IDEA?</span></h2>
                     <p class="contact-desc reveal-up" style="--delay: 0.1s">
                         Whether it's a project, a partnership, or just a conversation about what's next,
                         I'm always up for it. Let's build something extraordinary.
                     </p>
+                    <div class="contact-intent reveal-up" style="--delay: 0.16s">
+                        <span>Best path</span>
+                        <strong>Send details + preferred call slots. I reply with next step.</strong>
+                        <a href="#contactForm" class="btn-primary btn-small">REQUEST MEETING →</a>
+                    </div>
                     <div class="contact-socials reveal-up" style="--delay: 0.2s">
+                        <a href="Dev_Patel_Resume.pdf" download class="social-link">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="12" y1="18" x2="12" y2="12"/>
+                                <polyline points="9 15 12 18 15 15"/>
+                            </svg>
+                            RESUME
+                        </a>
                         <a href="https://www.linkedin.com/in/dev-patel-128-/" target="_blank" rel="noopener noreferrer" class="social-link">
                             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                                 <path
@@ -890,6 +1086,12 @@
                             </svg>
                             X (TWITTER)
                         </a>
+                        <a href="https://substack.com/@devpatel1286" target="_blank" rel="noopener noreferrer" class="social-link">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                <path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/>
+                            </svg>
+                            SUBSTACK
+                        </a>
                     </div>
                 </div>
                 <div class="contact-right">
@@ -898,6 +1100,7 @@
                         <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" />
                         <input type="hidden" name="_captcha" value="false" />
                         <input type="hidden" name="source" value="Portfolio Website - devpatel.in" />
+                        <input type="hidden" name="_autoresponse" value="Hey — your message just landed in my inbox.&#10;&#10;I'm Dev Patel — founder of Navdek and builder of fast, secure digital systems. If you've reached out, you're already thinking about building something worth launching. I want to hear all of it.&#10;&#10;I'll review your message and reply with a clear next step — typically within 24 hours.&#10;&#10;Portfolio: devpatel.in&#10;&#10;Stay curious. Stay building.&#10;&#10;— Dev Patel&#10;Founder, Navdek | devpatel.in" />
                         <div class="form-group reveal-up" style="--delay: 0.05s">
                             <label for="name">YOUR NAME</label>
                             <input type="text" id="name" name="name" placeholder="John Doe" required aria-required="true" />
@@ -907,11 +1110,51 @@
                             <input type="email" id="email" name="email" placeholder="john@example.com" required aria-required="true" />
                         </div>
                         <div class="form-group reveal-up" style="--delay: 0.15s">
+                            <label for="projectType">WHAT IS THIS ABOUT?</label>
+                            <select id="projectType" name="project_type" required aria-required="true">
+                                <option value="">Select one</option>
+                                <option value="Project">Project</option>
+                                <option value="Partnership">Partnership</option>
+                                <option value="Meeting request">Meeting request</option>
+                                <option value="Hiring">Hiring</option>
+                                <option value="General">General</option>
+                            </select>
+                        </div>
+                        <div class="form-group reveal-up" style="--delay: 0.18s">
+                            <label for="timeline">TIMELINE</label>
+                            <select id="timeline" name="timeline" required aria-required="true">
+                                <option value="">Select one</option>
+                                <option value="ASAP">ASAP</option>
+                                <option value="This month">This month</option>
+                                <option value="1-3 months">1-3 months</option>
+                                <option value="Exploring">Exploring</option>
+                            </select>
+                        </div>
+                        <div class="form-group form-wide reveal-up" style="--delay: 0.2s">
+                            <label>PREFERRED CALL TIME <span class="slot-hint">(IST · Select up to 2 slots)</span></label>
+                            <input type="hidden" id="preferredTime" name="preferred_call_time" />
+                            <div class="time-slots" id="timeSlots">
+                                <button type="button" class="time-slot-btn" data-value="9:00 AM">9:00 AM</button>
+                                <button type="button" class="time-slot-btn" data-value="10:00 AM">10:00 AM</button>
+                                <button type="button" class="time-slot-btn" data-value="11:00 AM">11:00 AM</button>
+                                <button type="button" class="time-slot-btn" data-value="12:00 PM">12:00 PM</button>
+                                <button type="button" class="time-slot-btn" data-value="1:00 PM">1:00 PM</button>
+                                <button type="button" class="time-slot-btn" data-value="2:00 PM">2:00 PM</button>
+                                <button type="button" class="time-slot-btn" data-value="3:00 PM">3:00 PM</button>
+                                <button type="button" class="time-slot-btn" data-value="4:00 PM">4:00 PM</button>
+                                <button type="button" class="time-slot-btn" data-value="5:00 PM">5:00 PM</button>
+                                <button type="button" class="time-slot-btn" data-value="6:00 PM">6:00 PM</button>
+                                <button type="button" class="time-slot-btn" data-value="7:00 PM">7:00 PM</button>
+                                <button type="button" class="time-slot-btn" data-value="8:00 PM">8:00 PM</button>
+                                <button type="button" class="time-slot-btn" data-value="9:00 PM">9:00 PM</button>
+                            </div>
+                        </div>
+                        <div class="form-group form-wide reveal-up" style="--delay: 0.22s">
                             <label for="message">YOUR MESSAGE</label>
                             <textarea id="message" name="message" rows="5" placeholder="Tell me about your idea..."
                                 required aria-required="true"></textarea>
                         </div>
-                        <button type="submit" class="btn-primary reveal-up" style="--delay: 0.2s">
+                        <button type="submit" class="btn-primary form-wide reveal-up" style="--delay: 0.25s">
                             SEND MESSAGE
                             <span class="btn-arrow">→</span>
                         </button>
@@ -935,6 +1178,7 @@
                 <a href="https://github.com/DevPatel128" target="_blank" rel="noopener noreferrer">GITHUB</a>
                 <a href="https://www.instagram.com/experiencebydev/" target="_blank" rel="noopener noreferrer">INSTAGRAM</a>
                 <a href="https://x.com/DevPatel128" target="_blank" rel="noopener noreferrer">X</a>
+                <a href="https://substack.com/@devpatel1286" target="_blank" rel="noopener noreferrer">SUBSTACK</a>
             </div>
         </div>
     </footer>
