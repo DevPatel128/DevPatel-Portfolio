@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://infodevpatel.devpatel.workers.dev/sitemap.xml
+Sitemap: https://devpatel-portfolio.devpatel1286.workers.dev/sitemap.xml

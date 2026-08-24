@@ -12,6 +12,7 @@
  */
 
 const CONTACT_PATH = '/api/contact';
+const HEALTH_PATH = '/api/health';
 const MAX_BODY_BYTES = 16 * 1024;
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_S = 600;
@@ -42,12 +43,32 @@ export default {
             return handleContact(request, env, url.origin);
         }
 
+        if (url.pathname === HEALTH_PATH) {
+            return handleHealth(env);
+        }
+
         return env.ASSETS.fetch(request);
     },
 };
 
 function json(status, body) {
     return new Response(JSON.stringify(body), { status, headers: JSON_HEADERS });
+}
+
+/**
+ * Reports whether each binding is configured. Deliberately returns booleans
+ * only — never a secret value, never a secret name.
+ */
+function handleHealth(env) {
+    const configured = {
+        assets: typeof env.ASSETS?.fetch === 'function',
+        rate_limit_kv: typeof env.RATE_LIMIT?.get === 'function',
+        supabase: Boolean(env.SUPABASE_URL) && Boolean(env.SUPABASE_PUBLISHABLE_KEY),
+        formsubmit: Boolean(env.FORMSUBMIT_TOKEN),
+    };
+
+    const ready = Object.values(configured).every(Boolean);
+    return json(ready ? 200 : 503, { ready, configured });
 }
 
 async function handleContact(request, env, origin) {

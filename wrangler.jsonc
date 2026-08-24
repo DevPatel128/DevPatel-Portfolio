@@ -1,7 +1,7 @@
 {
   // Cloudflare Workers configuration — Dev Patel portfolio
   // Static site served from ./public, contact API handled by ./worker/index.js
-  "name": "infodevpatel",
+  "name": "devpatel-portfolio",
   "main": "./worker/index.js",
   "compatibility_date": "2026-08-24",
 
