@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://infodevpatel.devpatel.workers.dev/sitemap.xml

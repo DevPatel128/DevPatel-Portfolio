@@ -394,8 +394,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = new FormData(form);
         const jsonData = {};
         data.forEach((value, key) => jsonData[key] = value);
-        jsonData['_captcha'] = false;
-        jsonData['_subject'] = 'New Inquiry via devpatel.in Portfolio';
 
         fetch(form.action, {
             method: 'POST',

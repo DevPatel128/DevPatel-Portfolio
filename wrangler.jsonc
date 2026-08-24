@@ -1,0 +1,32 @@
+{
+  // Cloudflare Workers configuration — Dev Patel portfolio
+  // Static site served from ./public, contact API handled by ./worker/index.js
+  "name": "infodevpatel",
+  "main": "./worker/index.js",
+  "compatibility_date": "2026-08-24",
+
+  // Free *.workers.dev address + per-branch preview URLs
+  "workers_dev": true,
+  "preview_urls": true,
+
+  "observability": {
+    "enabled": true
+  },
+
+  // Only files inside ./public are ever published.
+  // Engineering docs at the repo root are therefore unreachable from the web.
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+
+  // Per-IP rate limiting for the contact endpoint
+  "kv_namespaces": [
+    {
+      "binding": "RATE_LIMIT",
+      "id": "02434550c7fc4dea95584e0c0a0e8076"
+    }
+  ]
+}

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://formsubmit.co; form-action https://formsubmit.co;" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none';" />
     <title>Dev Patel — Founder & Builder</title>
     <meta name="description"
         content="Dev Patel builds fast, secure websites and digital systems for brands, founders, and operators who need strategy, execution, and measurable results." />
@@ -12,8 +12,8 @@
     <meta property="og:title" content="Dev Patel — Founder & Builder" />
     <meta property="og:description" content="Fast, secure websites and digital systems for brands, founders, and operators who need strategy, execution, and measurable results." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://devpatel.in/" />
-    <meta property="og:image" content="https://devpatel.in/og-image.png" />
+    <meta property="og:url" content="https://infodevpatel.devpatel.workers.dev/" />
+    <meta property="og:image" content="https://infodevpatel.devpatel.workers.dev/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="en_IN" />
@@ -23,7 +23,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Dev Patel — Founder & Builder" />
     <meta name="twitter:description" content="Fast, secure websites and digital systems for brands, founders, and operators who need strategy, execution, and measurable results." />
-    <meta name="twitter:image" content="https://devpatel.in/og-image.png" />
+    <meta name="twitter:image" content="https://infodevpatel.devpatel.workers.dev/og-image.png" />
     <meta name="twitter:site" content="@DevPatel128" />
     <meta name="twitter:creator" content="@DevPatel128" />
 
@@ -35,7 +35,7 @@
     <meta name="geo.placename" content="Bengaluru" />
     <meta name="geo.position" content="12.9716;77.5946" />
     <meta name="ICBM" content="12.9716, 77.5946" />
-    <link rel="canonical" href="https://devpatel.in/" />
+    <link rel="canonical" href="https://infodevpatel.devpatel.workers.dev/" />
 
     <!-- Favicon & Icons -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
@@ -48,10 +48,10 @@
       "@context": "https://schema.org",
       "@type": "Person",
       "name": "Dev Patel",
-      "url": "https://devpatel.in",
+      "url": "https://infodevpatel.devpatel.workers.dev",
       "jobTitle": "Founder & Builder",
       "description": "Founder of Navdek and builder creating fast, secure websites and digital systems for brands, founders, and operators.",
-      "image": "https://devpatel.in/hero.jpg",
+      "image": "https://infodevpatel.devpatel.workers.dev/hero.jpg",
       "worksFor": {
         "@type": "Organization",
         "name": "NAVDEK",
@@ -76,7 +76,7 @@
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "Dev Patel",
-      "url": "https://devpatel.in",
+      "url": "https://infodevpatel.devpatel.workers.dev",
       "description": "Portfolio of Dev Patel — Founder of Navdek, Cloud & Security engineer, and relentless builder based in Bengaluru.",
       "author": {
         "@type": "Person",
@@ -1095,12 +1095,9 @@
                     </div>
                 </div>
                 <div class="contact-right">
-                    <form class="contact-form" id="contactForm" action="https://formsubmit.co/ajax/7a7e237573a3f8d9d835f08028c6f5ab" method="POST">
+                    <form class="contact-form" id="contactForm" action="/api/contact" method="POST">
                         <!-- Honeypot: hidden field to block spam bots -->
                         <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" />
-                        <input type="hidden" name="_captcha" value="false" />
-                        <input type="hidden" name="source" value="Portfolio Website - devpatel.in" />
-                        <input type="hidden" name="_autoresponse" value="Hey — your message just landed in my inbox.&#10;&#10;I'm Dev Patel — founder of Navdek and builder of fast, secure digital systems. If you've reached out, you're already thinking about building something worth launching. I want to hear all of it.&#10;&#10;I'll review your message and reply with a clear next step — typically within 24 hours.&#10;&#10;Portfolio: devpatel.in&#10;&#10;Stay curious. Stay building.&#10;&#10;— Dev Patel&#10;Founder, Navdek | devpatel.in" />
                         <div class="form-group reveal-up" style="--delay: 0.05s">
                             <label for="name">YOUR NAME</label>
                             <input type="text" id="name" name="name" placeholder="John Doe" required aria-required="true" />

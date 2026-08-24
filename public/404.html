@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, follow" />
+    <title>Page Not Found — Dev Patel</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="/style.css" />
+    <style>
+        /* This page ships no JS, so the custom cursor never initialises.
+           Restore the native pointer rather than leaving the user with none. */
+        body {
+            cursor: auto;
+            display: grid;
+            place-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .error-code {
+            font-family: var(--font-display);
+            font-size: clamp(5rem, 20vw, 12rem);
+            font-weight: 800;
+            line-height: 1;
+            color: var(--accent);
+        }
+
+        .error-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 1rem 0 0.75rem;
+        }
+
+        .error-body {
+            font-family: var(--font-body);
+            color: var(--text-secondary);
+            max-width: 42ch;
+            margin: 0 auto 2.5rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="section-label">ERROR — 404</div>
+        <p class="error-code">404</p>
+        <h1 class="error-title">This page doesn't exist.</h1>
+        <p class="error-body">The link is broken or the page has moved. Everything worth seeing is back on the
+            main page.</p>
+        <a href="/" class="btn-primary">BACK TO HOME <span class="btn-arrow">→</span></a>
+    </main>
+</body>
+</html>
