@@ -382,6 +382,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ── CONTACT FORM ──
+    const statusEl = document.getElementById('formStatus');
+
+    // Server-supplied text is written as textContent, never innerHTML. Only the
+    // hard-coded fallback below is allowed to carry markup, via appendChild.
+    function showStatus(message, isError) {
+        if (!statusEl) return;
+        statusEl.textContent = message;
+        statusEl.hidden = false;
+        statusEl.style.borderLeftColor = isError ? 'var(--danger)' : 'var(--accent)';
+    }
+
+    function showFallback() {
+        if (!statusEl) return;
+        statusEl.textContent = "That didn't send — your message is still here, nothing is lost. Try again in a moment, or reach me on ";
+        const link = document.createElement('a');
+        link.href = 'https://www.linkedin.com/in/dev-patel-128-/';
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'LinkedIn';
+        statusEl.appendChild(link);
+        statusEl.appendChild(document.createTextNode('.'));
+        statusEl.hidden = false;
+        statusEl.style.borderLeftColor = 'var(--danger)';
+    }
+
     const form = document.getElementById('contactForm');
     form?.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -403,19 +428,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Accept': 'application/json'
             }
         })
-        .then(response => {
+        .then(async (response) => {
             if (response.ok) {
                 btn.innerHTML = 'SENT ✓';
                 btn.style.background = 'var(--success)';
+                showStatus("Message received — I'll reply within 24 hours.");
                 form.reset();
-            } else {
-                btn.innerHTML = 'FAILED ✗';
-                btn.style.background = 'var(--danger)';
+                return;
             }
+
+            // Surface the server's reason where there is one, so a validation
+            // problem is fixable rather than mysterious.
+            const detail = await response.json().catch(() => null);
+            btn.innerHTML = 'FAILED ✗';
+            btn.style.background = 'var(--danger)';
+            if (detail?.error) { showStatus(detail.error, true); } else { showFallback(); }
         })
         .catch(() => {
             btn.innerHTML = 'FAILED ✗';
             btn.style.background = 'var(--danger)';
+            showFallback();
         })
         .finally(() => {
             setTimeout(() => {
