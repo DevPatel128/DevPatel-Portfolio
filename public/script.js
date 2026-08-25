@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const cursor = document.getElementById('cursor');
     const follower = document.getElementById('cursorFollower');
     let mouseX = 0, mouseY = 0;
-    let cursorX = 0, cursorY = 0;
     let followerX = 0, followerY = 0;
 
     document.addEventListener('mousemove', (e) => {
@@ -134,7 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let twPhrase = 0;
     let twChar = 0;
     let twDeleting = false;
-    let twTimer = null;
     const TW_SPEED_TYPE = 60;
     const TW_SPEED_DELETE = 35;
     const TW_PAUSE = 2400;
@@ -153,17 +151,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (twChar === 0) {
                 twDeleting = false;
                 twPhrase = (twPhrase + 1) % typewriterPhrases.length;
-                twTimer = setTimeout(tickTypewriter, 300);
+                setTimeout(tickTypewriter, 300);
             } else {
-                twTimer = setTimeout(tickTypewriter, TW_SPEED_DELETE);
+                setTimeout(tickTypewriter, TW_SPEED_DELETE);
             }
         } else {
             twChar++;
             typewriterEl.textContent = current.slice(0, twChar);
             if (twChar === current.length) {
-                twTimer = setTimeout(() => { twDeleting = true; tickTypewriter(); }, TW_PAUSE);
+                setTimeout(() => { twDeleting = true; tickTypewriter(); }, TW_PAUSE);
             } else {
-                twTimer = setTimeout(tickTypewriter, TW_SPEED_TYPE);
+                setTimeout(tickTypewriter, TW_SPEED_TYPE);
             }
         }
     }
@@ -383,17 +381,89 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── CONTACT FORM ──
     const form = document.getElementById('contactForm');
+    const statusEl = document.getElementById('formStatus');
+
+    // Server-supplied text is written as textContent, never innerHTML. Only the
+    // hard-coded fallback below is allowed to carry markup, via appendChild.
+    function showStatus(message, isError) {
+        if (!statusEl) return;
+        statusEl.textContent = message;
+        statusEl.hidden = false;
+        statusEl.style.borderLeftColor = isError ? 'var(--danger)' : 'var(--accent)';
+    }
+
+    function showFallback() {
+        if (!statusEl) return;
+        statusEl.textContent = "That didn't send — your message is still here, nothing is lost. Try again in a moment, or reach me on ";
+        const link = document.createElement('a');
+        link.href = 'https://www.linkedin.com/in/dev-patel-128-/';
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'LinkedIn';
+        statusEl.appendChild(link);
+        statusEl.appendChild(document.createTextNode('.'));
+        statusEl.hidden = false;
+        statusEl.style.borderLeftColor = 'var(--danger)';
+    }
+
+    // Cloudflare Turnstile. The widget is rendered only when the Worker reports
+    // a site key, so the form stays fully functional before Turnstile is set up.
+    const turnstileMount = document.getElementById('turnstileWidget');
+    let turnstileWidgetId = null;
+
+    function loadTurnstile(siteKey) {
+        const script = document.createElement('script');
+        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+        script.async = true;
+        script.defer = true;
+        script.onload = () => {
+            if (typeof turnstile === 'undefined') return;
+            turnstileWidgetId = turnstile.render(turnstileMount, {
+                sitekey: siteKey,
+                theme: 'light',
+                action: 'contact'
+            });
+        };
+        document.head.appendChild(script);
+    }
+
+    if (form && turnstileMount) {
+        fetch('/api/config', { headers: { 'Accept': 'application/json' } })
+            .then(response => (response.ok ? response.json() : null))
+            .then(config => {
+                if (config?.turnstile_site_key) loadTurnstile(config.turnstile_site_key);
+            })
+            .catch(() => { /* No widget: the honeypot and server rate limit still apply. */ });
+    }
+
     form?.addEventListener('submit', (e) => {
         e.preventDefault();
 
         const btn = form.querySelector('button[type="submit"]');
         const originalText = btn.innerHTML;
-        btn.innerHTML = 'SENDING...';
-        btn.disabled = true;
 
         const data = new FormData(form);
         const jsonData = {};
         data.forEach((value, key) => jsonData[key] = value);
+
+        if (turnstileWidgetId !== null) {
+            const token = turnstile.getResponse(turnstileWidgetId);
+            if (!token) {
+                btn.innerHTML = 'VERIFY FIRST';
+                btn.style.background = 'var(--danger)';
+                showStatus('Please complete the verification check above.', true);
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                }, 2500);
+                return;
+            }
+            jsonData.cf_turnstile_response = token;
+        }
+
+        btn.innerHTML = 'SENDING...';
+        btn.disabled = true;
+        if (statusEl) statusEl.hidden = true;
 
         fetch(form.action, {
             method: 'POST',
@@ -403,21 +473,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Accept': 'application/json'
             }
         })
-        .then(response => {
+        .then(async (response) => {
             if (response.ok) {
                 btn.innerHTML = 'SENT ✓';
                 btn.style.background = 'var(--success)';
+                showStatus("Message received — I'll reply within 24 hours.");
                 form.reset();
-            } else {
-                btn.innerHTML = 'FAILED ✗';
-                btn.style.background = 'var(--danger)';
+                return;
             }
+
+            // Surface the server's reason where there is one, so a validation
+            // problem is fixable rather than mysterious.
+            const detail = await response.json().catch(() => null);
+            btn.innerHTML = 'FAILED ✗';
+            btn.style.background = 'var(--danger)';
+            if (detail?.error) { showStatus(detail.error, true); } else { showFallback(); }
         })
         .catch(() => {
             btn.innerHTML = 'FAILED ✗';
             btn.style.background = 'var(--danger)';
+            showFallback();
         })
         .finally(() => {
+            // A Turnstile token is single-use: reset so the next attempt has a fresh one.
+            if (turnstileWidgetId !== null) turnstile.reset(turnstileWidgetId);
             setTimeout(() => {
                 btn.innerHTML = originalText;
                 btn.style.background = '';

@@ -4,10 +4,24 @@
 .AppleDouble
 .LSOverride
 
+# Dependencies
+node_modules/
+
+# Local secrets — never commit (see .env.example)
+.dev.vars
+.env
+.env.*
+!.env.example
+
+# Cloudflare / Wrangler build + state
+.wrangler/
+
 # AI workflow / internal docs (not part of website)
 CLAUDE.md
 claude.md
 AGENTS.md
+Coder.md
+Creative.md
 research.md
 .claude/
 
@@ -16,9 +30,6 @@ research.md
 .idea/
 *.swp
 *.swo
-
-# Netlify CLI
-.netlify/
 
 # Misc
 *.log
