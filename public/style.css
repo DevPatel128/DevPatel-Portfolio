@@ -2052,6 +2052,23 @@ section {
   gap: 22px;
 }
 
+.form-status {
+  grid-column: 1 / -1;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+}
+
+.form-status a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
 .contact-form .btn-primary {
   width: 100%;
   justify-content: center;

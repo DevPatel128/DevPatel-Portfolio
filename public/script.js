@@ -381,6 +381,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── CONTACT FORM ──
     const form = document.getElementById('contactForm');
+    const statusEl = document.getElementById('formStatus');
+
+    // Server-supplied text is written as textContent, never innerHTML. Only the
+    // hard-coded fallback below is allowed to carry markup, via appendChild.
+    function showStatus(message, isError) {
+        if (!statusEl) return;
+        statusEl.textContent = message;
+        statusEl.hidden = false;
+        statusEl.style.borderLeftColor = isError ? 'var(--danger)' : 'var(--accent)';
+    }
+
+    function showFallback() {
+        if (!statusEl) return;
+        statusEl.textContent = "That didn't send — your message is still here, nothing is lost. Try again in a moment, or reach me on ";
+        const link = document.createElement('a');
+        link.href = 'https://www.linkedin.com/in/dev-patel-128-/';
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'LinkedIn';
+        statusEl.appendChild(link);
+        statusEl.appendChild(document.createTextNode('.'));
+        statusEl.hidden = false;
+        statusEl.style.borderLeftColor = 'var(--danger)';
+    }
 
     // Cloudflare Turnstile. The widget is rendered only when the Worker reports
     // a site key, so the form stays fully functional before Turnstile is set up.
@@ -427,6 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!token) {
                 btn.innerHTML = 'VERIFY FIRST';
                 btn.style.background = 'var(--danger)';
+                showStatus('Please complete the verification check above.', true);
                 setTimeout(() => {
                     btn.innerHTML = originalText;
                     btn.style.background = '';
@@ -438,6 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         btn.innerHTML = 'SENDING...';
         btn.disabled = true;
+        if (statusEl) statusEl.hidden = true;
 
         fetch(form.action, {
             method: 'POST',
@@ -447,19 +473,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Accept': 'application/json'
             }
         })
-        .then(response => {
+        .then(async (response) => {
             if (response.ok) {
                 btn.innerHTML = 'SENT ✓';
                 btn.style.background = 'var(--success)';
+                showStatus("Message received — I'll reply within 24 hours.");
                 form.reset();
-            } else {
-                btn.innerHTML = 'FAILED ✗';
-                btn.style.background = 'var(--danger)';
+                return;
             }
+
+            // Surface the server's reason where there is one, so a validation
+            // problem is fixable rather than mysterious.
+            const detail = await response.json().catch(() => null);
+            btn.innerHTML = 'FAILED ✗';
+            btn.style.background = 'var(--danger)';
+            if (detail?.error) { showStatus(detail.error, true); } else { showFallback(); }
         })
         .catch(() => {
             btn.innerHTML = 'FAILED ✗';
             btn.style.background = 'var(--danger)';
+            showFallback();
         })
         .finally(() => {
             // A Turnstile token is single-use: reset so the next attempt has a fresh one.
