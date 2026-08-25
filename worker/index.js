@@ -1,25 +1,62 @@
 /**
  * Dev Patel portfolio — Cloudflare Worker
  *
- * Serves the static site from the ASSETS binding, and handles contact form
- * submissions at POST /api/contact:
- *   1. Rejects bots via the honeypot field
- *   2. Rate limits per client IP using Workers KV
- *   3. Stores the message in Supabase (permanent record)
- *   4. Relays it to FormSubmit for the email notification
+ * Serves the static site from the ASSETS binding and exposes a small API:
+ *   GET  /api/health   — binding readiness (booleans only, never values)
+ *   GET  /api/config   — client-safe config (Turnstile site key)
+ *   POST /api/contact  — contact form intake
  *
- * Secrets required: SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, FORMSUBMIT_TOKEN
+ * Contact pipeline:
+ *   1. Same-origin check + honeypot reject bots cheaply
+ *   2. Per-IP rate limit via Workers KV
+ *   3. Cloudflare Turnstile verification (only when TURNSTILE_SECRET_KEY is set)
+ *   4. Store the message in Supabase Postgres (permanent record)
+ *   5. Send the email notification via Resend, falling back to FormSubmit
+ *
+ * Every integration is optional at runtime: an unconfigured provider is skipped
+ * rather than fatal, and a submission only fails when both the database and the
+ * email path fail. See .env.example for the full variable list.
+ */
+
+/**
+ * @typedef {object} Env
+ * @property {Fetcher} ASSETS Static assets from ./public
+ * @property {KVNamespace} RATE_LIMIT Per-IP contact throttle
+ * @property {string} [SUPABASE_URL] Supabase project URL
+ * @property {string} [SUPABASE_PUBLISHABLE_KEY] Supabase anon/publishable key (never service_role)
+ * @property {string} [RESEND_API_KEY] Preferred transactional email provider
+ * @property {string} [CONTACT_TO_EMAIL] Inbox that receives inquiries
+ * @property {string} [CONTACT_FROM_EMAIL] Verified Resend sender, e.g. "Dev <hello@example.com>"
+ * @property {string} [FORMSUBMIT_TOKEN] Legacy email fallback, used only without Resend
+ * @property {string} [TURNSTILE_SECRET_KEY] Enables server-side Turnstile verification
+ * @property {string} [TURNSTILE_SITE_KEY] Client-safe key, served from /api/config
+ */
+
+/**
+ * @typedef {object} ContactFields
+ * @property {string} name
+ * @property {string} email
+ * @property {string} project_type
+ * @property {string} timeline
+ * @property {string | null} preferred_call_time
+ * @property {string} message
  */
 
 const CONTACT_PATH = '/api/contact';
 const HEALTH_PATH = '/api/health';
+const CONFIG_PATH = '/api/config';
+
 const MAX_BODY_BYTES = 16 * 1024;
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_S = 600;
+const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+const RESEND_URL = 'https://api.resend.com/emails';
 
+/** @type {ReadonlyArray<'name' | 'email' | 'project_type' | 'timeline' | 'message'>} */
 const REQUIRED_FIELDS = ['name', 'email', 'project_type', 'timeline', 'message'];
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+/** @type {Record<string, number>} */
 const FIELD_LIMITS = {
     name: 120,
     email: 254,
@@ -36,44 +73,94 @@ const JSON_HEADERS = {
 };
 
 export default {
-    async fetch(request, env) {
+    /**
+     * @param {Request} request
+     * @param {Env} env
+     * @returns {Promise<Response> | Response}
+     */
+    fetch(request, env) {
         const url = new URL(request.url);
 
-        if (url.pathname === CONTACT_PATH) {
-            return handleContact(request, env, url.origin);
+        switch (url.pathname) {
+            case CONTACT_PATH:
+                return handleContact(request, env, url);
+            case HEALTH_PATH:
+                return handleHealth(env);
+            case CONFIG_PATH:
+                return handleConfig(env);
+            default:
+                return env.ASSETS.fetch(request);
         }
-
-        if (url.pathname === HEALTH_PATH) {
-            return handleHealth(env);
-        }
-
-        return env.ASSETS.fetch(request);
     },
 };
 
-function json(status, body) {
-    return new Response(JSON.stringify(body), { status, headers: JSON_HEADERS });
+/**
+ * @param {number} status
+ * @param {Record<string, unknown>} body
+ * @param {Record<string, string>} [extraHeaders]
+ * @returns {Response}
+ */
+function json(status, body, extraHeaders) {
+    return new Response(JSON.stringify(body), {
+        status,
+        headers: { ...JSON_HEADERS, ...extraHeaders },
+    });
 }
 
 /**
  * Reports whether each binding is configured. Deliberately returns booleans
  * only — never a secret value, never a secret name.
+ *
+ * @param {Env} env
+ * @returns {Response}
  */
-function handleHealth(env) {
+export function handleHealth(env) {
     const configured = {
         assets: typeof env.ASSETS?.fetch === 'function',
         rate_limit_kv: typeof env.RATE_LIMIT?.get === 'function',
         supabase: Boolean(env.SUPABASE_URL) && Boolean(env.SUPABASE_PUBLISHABLE_KEY),
-        formsubmit: Boolean(env.FORMSUBMIT_TOKEN),
+        email: hasResend(env) || Boolean(env.FORMSUBMIT_TOKEN),
+        turnstile: Boolean(env.TURNSTILE_SECRET_KEY) && Boolean(env.TURNSTILE_SITE_KEY),
     };
 
-    const ready = Object.values(configured).every(Boolean);
+    // Turnstile is hardening, not a dependency — the form works without it.
+    const ready =
+        configured.assets && configured.rate_limit_kv && configured.supabase && configured.email;
+
     return json(ready ? 200 : 503, { ready, configured });
 }
 
-async function handleContact(request, env, origin) {
+/**
+ * Client-safe configuration. The Turnstile *site* key is public by design;
+ * serving it here keeps environment-specific values out of the static HTML.
+ *
+ * @param {Env} env
+ * @returns {Response}
+ */
+export function handleConfig(env) {
+    return json(
+        200,
+        { turnstile_site_key: env.TURNSTILE_SITE_KEY ?? null },
+        { 'Cache-Control': 'public, max-age=300' },
+    );
+}
+
+/**
+ * @param {Request} request
+ * @param {Env} env
+ * @param {URL} url
+ * @returns {Promise<Response>}
+ */
+export async function handleContact(request, env, url) {
     if (request.method !== 'POST') {
-        return json(405, { error: 'Method not allowed' });
+        return json(405, { error: 'Method not allowed' }, { Allow: 'POST' });
+    }
+
+    // Same-origin only. Browsers always send Origin on a cross-site POST, so a
+    // mismatch means the submission did not come from this site.
+    const origin = request.headers.get('origin');
+    if (origin && !isSameOrigin(origin, url)) {
+        return json(403, { error: 'Cross-origin submissions are not accepted' });
     }
 
     if (!request.headers.get('content-type')?.includes('application/json')) {
@@ -96,8 +183,10 @@ async function handleContact(request, env, origin) {
         return json(400, { error: 'Malformed request body' });
     }
 
+    const body = /** @type {Record<string, unknown>} */ (payload);
+
     // Honeypot: a real browser never fills this. Answer 200 so bots learn nothing.
-    if (typeof payload._honey === 'string' && payload._honey.trim() !== '') {
+    if (typeof body._honey === 'string' && body._honey.trim() !== '') {
         return json(200, { ok: true });
     }
 
@@ -106,7 +195,15 @@ async function handleContact(request, env, origin) {
         return json(429, { error: 'Too many submissions. Please try again shortly.' });
     }
 
-    const fields = sanitise(payload);
+    if (env.TURNSTILE_SECRET_KEY) {
+        const token =
+            typeof body.cf_turnstile_response === 'string' ? body.cf_turnstile_response : '';
+        if (!(await verifyTurnstile(env.TURNSTILE_SECRET_KEY, token, clientIp))) {
+            return json(403, { error: 'Bot check failed. Please retry the verification.' });
+        }
+    }
+
+    const fields = sanitise(body);
 
     const missing = REQUIRED_FIELDS.filter((field) => !fields[field]);
     if (missing.length > 0) {
@@ -125,14 +222,14 @@ async function handleContact(request, env, origin) {
 
     const [stored, notified] = await Promise.allSettled([
         storeMessage(env, record),
-        sendNotification(env, fields, origin),
+        sendNotification(env, fields, url.origin),
     ]);
 
     if (stored.status === 'rejected') {
         console.error('Supabase insert failed:', stored.reason);
     }
     if (notified.status === 'rejected') {
-        console.error('FormSubmit relay failed:', notified.reason);
+        console.error('Email notification failed:', notified.reason);
     }
 
     // The lead is only lost if both paths failed.
@@ -143,7 +240,25 @@ async function handleContact(request, env, origin) {
     return json(200, { ok: true });
 }
 
-function sanitise(payload) {
+/**
+ * @param {string} origin
+ * @param {URL} url
+ * @returns {boolean}
+ */
+function isSameOrigin(origin, url) {
+    try {
+        return new URL(origin).origin === url.origin;
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * @param {Record<string, unknown>} payload
+ * @returns {ContactFields}
+ */
+export function sanitise(payload) {
+    /** @type {Record<string, string | null>} */
     const clean = {};
 
     for (const [field, limit] of Object.entries(FIELD_LIMITS)) {
@@ -154,9 +269,14 @@ function sanitise(payload) {
     // Optional field: store null rather than an empty string.
     clean.preferred_call_time = clean.preferred_call_time || null;
 
-    return clean;
+    return /** @type {ContactFields} */ (/** @type {unknown} */ (clean));
 }
 
+/**
+ * @param {Env} env
+ * @param {string} clientIp
+ * @returns {Promise<boolean>}
+ */
 async function isRateLimited(env, clientIp) {
     const key = `contact:${clientIp}`;
     const raw = await env.RATE_LIMIT.get(key);
@@ -171,7 +291,52 @@ async function isRateLimited(env, clientIp) {
     return false;
 }
 
+/**
+ * @param {string} secret
+ * @param {string} token
+ * @param {string} clientIp
+ * @returns {Promise<boolean>}
+ */
+async function verifyTurnstile(secret, token, clientIp) {
+    if (!token) {
+        return false;
+    }
+
+    const form = new URLSearchParams({ secret, response: token });
+    if (clientIp !== 'unknown') {
+        form.set('remoteip', clientIp);
+    }
+
+    try {
+        const response = await fetch(TURNSTILE_VERIFY_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: form,
+        });
+
+        if (!response.ok) {
+            console.error('Turnstile siteverify responded', response.status);
+            return false;
+        }
+
+        const result = /** @type {{ success?: boolean }} */ (await response.json());
+        return result.success === true;
+    } catch (error) {
+        console.error('Turnstile verification error:', error);
+        return false;
+    }
+}
+
+/**
+ * @param {Env} env
+ * @param {Record<string, unknown>} record
+ * @returns {Promise<void>}
+ */
 async function storeMessage(env, record) {
+    if (!env.SUPABASE_URL || !env.SUPABASE_PUBLISHABLE_KEY) {
+        throw new Error('Supabase is not configured');
+    }
+
     const response = await fetch(`${env.SUPABASE_URL}/rest/v1/contact_messages`, {
         method: 'POST',
         headers: {
@@ -188,8 +353,94 @@ async function storeMessage(env, record) {
     }
 }
 
+/**
+ * @param {Env} env
+ * @returns {boolean}
+ */
+function hasResend(env) {
+    return Boolean(env.RESEND_API_KEY && env.CONTACT_TO_EMAIL && env.CONTACT_FROM_EMAIL);
+}
+
+/**
+ * Resend is the target provider; FormSubmit stays as a fallback so the form
+ * keeps working until Resend credentials are in place.
+ *
+ * @param {Env} env
+ * @param {ContactFields} fields
+ * @param {string} origin
+ * @returns {Promise<void>}
+ */
 async function sendNotification(env, fields, origin) {
-    const response = await fetch(`https://formsubmit.co/ajax/${env.FORMSUBMIT_TOKEN}`, {
+    if (hasResend(env)) {
+        return sendViaResend(env, fields, origin);
+    }
+
+    if (env.FORMSUBMIT_TOKEN) {
+        return sendViaFormSubmit(env.FORMSUBMIT_TOKEN, fields, origin);
+    }
+
+    throw new Error('No email provider is configured');
+}
+
+/**
+ * @param {Env} env
+ * @param {ContactFields} fields
+ * @param {string} origin
+ * @returns {Promise<void>}
+ */
+async function sendViaResend(env, fields, origin) {
+    const from = /** @type {string} */ (env.CONTACT_FROM_EMAIL);
+
+    const notify = resendSend(env, {
+        from,
+        to: [/** @type {string} */ (env.CONTACT_TO_EMAIL)],
+        reply_to: fields.email,
+        subject: `New portfolio inquiry — ${fields.project_type}`,
+        text: inquiryBody(fields, origin),
+    });
+
+    // The visitor auto-reply is a courtesy: never fail the submission over it.
+    const autoReply = resendSend(env, {
+        from,
+        to: [fields.email],
+        subject: 'Thanks for reaching out — Dev Patel',
+        text: autoResponse(origin),
+    }).catch((error) => {
+        console.error('Resend auto-reply failed:', error);
+    });
+
+    await notify;
+    await autoReply;
+}
+
+/**
+ * @param {Env} env
+ * @param {Record<string, unknown>} message
+ * @returns {Promise<void>}
+ */
+async function resendSend(env, message) {
+    const response = await fetch(RESEND_URL, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${env.RESEND_API_KEY}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(message),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Resend responded ${response.status}: ${await response.text()}`);
+    }
+}
+
+/**
+ * @param {string} token
+ * @param {ContactFields} fields
+ * @param {string} origin
+ * @returns {Promise<void>}
+ */
+async function sendViaFormSubmit(token, fields, origin) {
+    const response = await fetch(`https://formsubmit.co/ajax/${token}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -210,6 +461,30 @@ async function sendNotification(env, fields, origin) {
     }
 }
 
+/**
+ * @param {ContactFields} fields
+ * @param {string} origin
+ * @returns {string}
+ */
+function inquiryBody(fields, origin) {
+    return [
+        `Name:       ${fields.name}`,
+        `Email:      ${fields.email}`,
+        `About:      ${fields.project_type}`,
+        `Timeline:   ${fields.timeline}`,
+        `Call slots: ${fields.preferred_call_time ?? '—'}`,
+        '',
+        'Message:',
+        fields.message,
+        '',
+        `Source: ${origin}`,
+    ].join('\n');
+}
+
+/**
+ * @param {string} origin
+ * @returns {string}
+ */
 function autoResponse(origin) {
     return [
         'Hey — your message just landed in my inbox.',

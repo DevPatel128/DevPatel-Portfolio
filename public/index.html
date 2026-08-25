@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-src https://challenges.cloudflare.com; form-action 'self'; base-uri 'self'; object-src 'none';" />
     <title>Dev Patel — Founder & Builder</title>
     <meta name="description"
         content="Dev Patel builds fast, secure websites and digital systems for brands, founders, and operators who need strategy, execution, and measurable results." />
@@ -877,7 +877,7 @@
                         </svg>
                     </div>
                     <h3>CLOUD &amp; DEVOPS</h3>
-                    <p>Cloud Computing · Netlify · Deployment · Infrastructure</p>
+                    <p>Cloud Computing · Cloudflare · Deployment · Infrastructure</p>
                     <div class="skill-bar">
                         <div class="skill-fill" data-width="88"></div>
                     </div>
@@ -1151,6 +1151,7 @@
                             <textarea id="message" name="message" rows="5" placeholder="Tell me about your idea..."
                                 required aria-required="true"></textarea>
                         </div>
+                        <div class="turnstile-widget form-wide" id="turnstileWidget"></div>
                         <button type="submit" class="btn-primary form-wide reveal-up" style="--delay: 0.25s">
                             SEND MESSAGE
                             <span class="btn-arrow">→</span>

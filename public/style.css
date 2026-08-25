@@ -2061,6 +2061,21 @@ section {
   grid-column: 1 / -1;
 }
 
+/* Turnstile mount point. Collapses entirely until the widget renders, so the
+   form layout is unchanged when bot protection is not configured. */
+.turnstile-widget:empty {
+  display: none;
+}
+
+.turnstile-widget {
+  display: flex;
+  justify-content: center;
+}
+
+.turnstile-widget iframe {
+  cursor: auto;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
