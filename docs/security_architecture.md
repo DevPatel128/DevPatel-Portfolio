@@ -79,7 +79,7 @@ Sent from [`public/_headers`](../public/_headers) on every static response:
 | `Permissions-Policy` | camera, mic, geolocation, payment all `()` | Silent capability use |
 | `Cross-Origin-Opener-Policy` | `same-origin` | Cross-origin window handles |
 | `Cross-Origin-Resource-Policy` | `same-origin` | Cross-origin embedding |
-| `X-Robots-Tag` | `noindex` on preview URLs only | Keeps branch previews out of search |
+| `X-Robots-Tag` | *(not sent)* | See the note below on preview URLs |
 
 The CSP allows exactly three external origins, all Cloudflare or Google Fonts:
 `challenges.cloudflare.com` (script + frame, Turnstile), `fonts.googleapis.com`
@@ -89,6 +89,15 @@ successful script injection still has nowhere to send stolen data.
 **`_headers` never applies to responses built in Worker code.** The API therefore
 carries its own set in `JSON_HEADERS`: `no-store`, `nosniff`, `X-Frame-Options`
 and `Referrer-Policy`.
+
+**Preview URLs are disabled** (`preview_urls: false`). They would otherwise
+publish a complete, unauthenticated copy of the site for every deployed version.
+They cannot be selectively de-indexed: a Workers preview host is
+`<version>-<worker>.<subdomain>.workers.dev`, which has the same label structure
+as production, so a `_headers` placeholder rule matches both — and `_headers`
+permits only one splat per URL. An earlier attempt at such a rule applied
+`noindex` to production and was reverted. Disabling previews removes the surface
+instead of trying to label it.
 
 The CSP is duplicated in a `<meta>` tag in `index.html` as defence in depth. The
 two copies must stay identical except for `frame-ancestors`, which the spec
