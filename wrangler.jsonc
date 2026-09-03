@@ -5,9 +5,12 @@
   "main": "./worker/index.js",
   "compatibility_date": "2026-08-24",
 
-  // Free *.workers.dev address + per-branch preview URLs
+  // Free *.workers.dev address. Preview URLs are OFF: they publish a full,
+  // unauthenticated copy of the site per version, and their hostname
+  // (<version>-<worker>.<subdomain>.workers.dev) is indistinguishable from
+  // production to a _headers rule — so they cannot be selectively noindexed.
   "workers_dev": true,
-  "preview_urls": true,
+  "preview_urls": false,
 
   "observability": {
     "enabled": true
