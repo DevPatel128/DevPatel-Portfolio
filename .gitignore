@@ -33,3 +33,7 @@ research.md
 
 # Misc
 *.log
+
+# Business strategy + investor materials. This repository is PUBLIC —
+# committing these would publish them permanently, including in git history.
+Framework/
