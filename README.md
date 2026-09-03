@@ -8,7 +8,7 @@ worth reading.
 
 Founder of Navdek. BTech CS. Turning curiosity into creation.
 
-**Live:** <https://devpatel-portfolio.devpatel1286.workers.dev>
+**Live:** <https://info.devpatel.workers.dev>
 
 ---
 
@@ -23,7 +23,7 @@ GitHub (source of truth)
                                               │      └───── Workers KV (rate limit)
                                               │      └───── Turnstile (bot check)
                                               ▼
-                                   Supabase Postgres (contact_messages, RLS)
+                                    Cloudflare D1 (contact_messages)
                                               +
                                      Resend (transactional email)
 ```
@@ -35,14 +35,14 @@ GitHub (source of truth)
 | API | Cloudflare Workers | `POST /api/contact`, `GET /api/health`, `GET /api/config` |
 | Rate limiting | Cloudflare Workers KV | 5 submissions per IP per 10 minutes |
 | Bot protection | Cloudflare Turnstile | Contact form; honeypot as the always-on baseline |
-| Database | Supabase Postgres | Permanent record of every inquiry, insert-only RLS |
+| Database | Cloudflare D1 | Permanent record of every inquiry; no public endpoint, no client key |
 | Email | Resend | Owner notification + visitor auto-reply |
 
 Deliberately **not** used, because nothing in the project needs them: R2 (no user
-uploads — site images are static assets), Queues (no async work), Supabase Auth
-(no accounts), Supabase Realtime (no live data), Stripe (no payments), Sentry and
-PostHog (Workers Observability already covers logs and errors for a single-page
-static site).
+uploads — site images are static assets), Queues (no async work), Durable Objects
+(no coordinated state), any auth provider (no accounts), Stripe (no payments),
+Sentry and PostHog (Workers Observability already covers logs and errors for a
+single-page static site).
 
 ---
 
@@ -51,7 +51,7 @@ static site).
 - Vanilla HTML5 · CSS3 · JavaScript (ES6+)
 - Zero frameworks · Zero bundlers · Zero build step for the site itself
 - Cloudflare Workers — hosting, edge API, rate limiting
-- Supabase Postgres — contact message storage
+- Cloudflare D1 — contact message storage
 - Resend — transactional email (FormSubmit remains as a fallback)
 
 ---
@@ -65,7 +65,7 @@ public/                 Everything published to the web
   script.js             All interactivity
   _headers              Security headers (CSP, HSTS, COOP/CORP …)
 worker/index.js         Edge Worker — serves assets + the /api routes
-supabase/migrations/    Database schema + RLS policies
+d1/migrations/          D1 schema for contact_messages
 .github/workflows/      CI and deployment pipelines
 wrangler.jsonc          Cloudflare configuration
 .env.example            Every environment variable, documented
@@ -129,15 +129,17 @@ failed, until you opt in.
 Everything below is dashboard work; the repository is already complete.
 
 1. **Cloudflare credentials** → GitHub → Settings → Secrets and variables → Actions → *Secrets*
-   - `CLOUDFLARE_API_TOKEN` — permissions: Workers Scripts:Edit, Workers KV Storage:Edit
+   - `CLOUDFLARE_API_TOKEN` — permissions: Workers Scripts:Edit, Workers KV Storage:Edit, D1:Edit
    - `CLOUDFLARE_ACCOUNT_ID` — Cloudflare dashboard → Workers & Pages
-2. **KV namespace** — [wrangler.jsonc](wrangler.jsonc) points at an existing namespace.
-   Deploying under a different Cloudflare account needs a new one:
-   `npx wrangler kv namespace create RATE_LIMIT`, then update the `id`.
+2. **Bindings** — [wrangler.jsonc](wrangler.jsonc) points at an existing KV namespace
+   and D1 database. Deploying under a different Cloudflare account needs new ones:
+   `npx wrangler kv namespace create RATE_LIMIT` and
+   `npx wrangler d1 create portfolio-contact`, then update the `id` values.
 3. **Worker secrets** — set what you need (all optional; see [.env.example](.env.example)):
    ```bash
-   npx wrangler secret put SUPABASE_URL
-   npx wrangler secret put SUPABASE_PUBLISHABLE_KEY
+   npx wrangler secret put FORMSUBMIT_TOKEN
+   npx wrangler secret put TURNSTILE_SECRET_KEY
+   npx wrangler secret put TURNSTILE_SITE_KEY
    ```
    These are managed outside GitHub so a missing repository secret can never
    blank one out mid-deploy.
@@ -154,14 +156,18 @@ this repository, disconnect it: it would deploy in parallel with Actions.
 
 ## Database
 
-Optional. Without Supabase the contact form still emails; it just keeps no
-permanent record, and `/api/health` reports `supabase: false`.
+Contact submissions are stored in Cloudflare D1. Apply the schema once:
 
 ```bash
-npx supabase link --project-ref <your-project-ref>
-npx supabase db push
+npx wrangler d1 execute portfolio-contact --remote --file=./d1/migrations/0001_contact_messages.sql
 ```
 
-Applies [supabase/migrations](supabase/migrations) — the `contact_messages` table
-with row-level security. The anon key can insert and nothing else; reading
-messages requires `service_role`.
+Read messages back with:
+
+```bash
+npx wrangler d1 execute portfolio-contact --remote --command "SELECT created_at, name, email, project_type, message FROM contact_messages ORDER BY created_at DESC LIMIT 20"
+```
+
+The database has no public endpoint and no client-side key — the only path to it
+is the Worker's `DB` binding. Storage degrades gracefully: if D1 is unreachable
+the form still emails, and `/api/health` reports `database: false`.

@@ -1,7 +1,7 @@
 {
   // Cloudflare Workers configuration — Dev Patel portfolio
   // Static site served from ./public, contact API handled by ./worker/index.js
-  "name": "devpatel-portfolio",
+  "name": "info",
   "main": "./worker/index.js",
   "compatibility_date": "2026-08-24",
 
@@ -21,6 +21,16 @@
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page"
   },
+
+  // Permanent record of every contact submission. Reachable only through this
+  // binding — there is no public endpoint and no client-side key to leak.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "portfolio-contact",
+      "database_id": "f969cf74-2654-4524-ac86-b95f4cc67fb4"
+    }
+  ],
 
   // Per-IP rate limiting for the contact endpoint
   "kv_namespaces": [

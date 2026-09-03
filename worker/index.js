@@ -10,7 +10,7 @@
  *   1. Same-origin check + honeypot reject bots cheaply
  *   2. Per-IP rate limit via Workers KV
  *   3. Cloudflare Turnstile verification (only when TURNSTILE_SECRET_KEY is set)
- *   4. Store the message in Supabase Postgres (permanent record)
+ *   4. Store the message in Cloudflare D1 (permanent record)
  *   5. Send the email notification via Resend, falling back to FormSubmit
  *
  * Every integration is optional at runtime: an unconfigured provider is skipped
@@ -22,8 +22,7 @@
  * @typedef {object} Env
  * @property {Fetcher} ASSETS Static assets from ./public
  * @property {KVNamespace} RATE_LIMIT Per-IP contact throttle
- * @property {string} [SUPABASE_URL] Supabase project URL
- * @property {string} [SUPABASE_PUBLISHABLE_KEY] Supabase anon/publishable key (never service_role)
+ * @property {D1Database} DB Contact submissions — reachable only through this binding
  * @property {string} [RESEND_API_KEY] Preferred transactional email provider
  * @property {string} [CONTACT_TO_EMAIL] Inbox that receives inquiries
  * @property {string} [CONTACT_FROM_EMAIL] Verified Resend sender, e.g. "Dev <hello@example.com>"
@@ -40,6 +39,15 @@
  * @property {string} timeline
  * @property {string | null} preferred_call_time
  * @property {string} message
+ */
+
+/**
+ * A ContactFields set plus the request metadata recorded alongside it.
+ *
+ * @typedef {ContactFields & {
+ *   source_ip_country: string | null,
+ *   user_agent: string,
+ * }} ContactRecord
  */
 
 const CONTACT_PATH = '/api/contact';
@@ -66,10 +74,14 @@ const FIELD_LIMITS = {
     message: 5000,
 };
 
+// public/_headers is applied by the static-asset layer and never reaches a
+// response built in Worker code, so the API carries its own hardening.
 const JSON_HEADERS = {
     'Content-Type': 'application/json; charset=utf-8',
     'Cache-Control': 'no-store',
     'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
 };
 
 export default {
@@ -118,14 +130,14 @@ export function handleHealth(env) {
     const configured = {
         assets: typeof env.ASSETS?.fetch === 'function',
         rate_limit_kv: typeof env.RATE_LIMIT?.get === 'function',
-        supabase: Boolean(env.SUPABASE_URL) && Boolean(env.SUPABASE_PUBLISHABLE_KEY),
+        database: typeof env.DB?.prepare === 'function',
         email: hasResend(env) || Boolean(env.FORMSUBMIT_TOKEN),
         turnstile: Boolean(env.TURNSTILE_SECRET_KEY) && Boolean(env.TURNSTILE_SITE_KEY),
     };
 
     // Turnstile is hardening, not a dependency — the form works without it.
     const ready =
-        configured.assets && configured.rate_limit_kv && configured.supabase && configured.email;
+        configured.assets && configured.rate_limit_kv && configured.database && configured.email;
 
     return json(ready ? 200 : 503, { ready, configured });
 }
@@ -214,9 +226,14 @@ export async function handleContact(request, env, url) {
         return json(422, { error: 'Please enter a valid email address' });
     }
 
+    // Both metadata fields are truncated to the column's CHECK constraint here,
+    // the same way sanitise() bounds the user-supplied fields.
+    const country = request.cf?.country;
+
+    /** @type {ContactRecord} */
     const record = {
         ...fields,
-        source_ip_country: request.cf?.country ?? null,
+        source_ip_country: typeof country === 'string' ? country.slice(0, 2) : null,
         user_agent: (request.headers.get('user-agent') ?? '').slice(0, 500),
     };
 
@@ -226,7 +243,7 @@ export async function handleContact(request, env, url) {
     ]);
 
     if (stored.status === 'rejected') {
-        console.error('Supabase insert failed:', stored.reason);
+        console.error('D1 insert failed:', stored.reason);
     }
     if (notified.status === 'rejected') {
         console.error('Email notification failed:', notified.reason);
@@ -328,28 +345,39 @@ async function verifyTurnstile(secret, token, clientIp) {
 }
 
 /**
+ * Every value is bound rather than interpolated, so the statement stays
+ * injection-proof no matter what survives sanitise(). The table's CHECK
+ * constraints are the layer behind this one.
+ *
  * @param {Env} env
- * @param {Record<string, unknown>} record
+ * @param {ContactRecord} record
  * @returns {Promise<void>}
  */
 async function storeMessage(env, record) {
-    if (!env.SUPABASE_URL || !env.SUPABASE_PUBLISHABLE_KEY) {
-        throw new Error('Supabase is not configured');
+    if (typeof env.DB?.prepare !== 'function') {
+        throw new Error('D1 binding DB is not configured');
     }
 
-    const response = await fetch(`${env.SUPABASE_URL}/rest/v1/contact_messages`, {
-        method: 'POST',
-        headers: {
-            apikey: env.SUPABASE_PUBLISHABLE_KEY,
-            Authorization: `Bearer ${env.SUPABASE_PUBLISHABLE_KEY}`,
-            'Content-Type': 'application/json',
-            Prefer: 'return=minimal',
-        },
-        body: JSON.stringify(record),
-    });
+    const result = await env.DB.prepare(
+        `INSERT INTO contact_messages
+             (name, email, project_type, timeline,
+              preferred_call_time, message, source_ip_country, user_agent)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+        .bind(
+            record.name,
+            record.email,
+            record.project_type,
+            record.timeline,
+            record.preferred_call_time,
+            record.message,
+            record.source_ip_country,
+            record.user_agent,
+        )
+        .run();
 
-    if (!response.ok) {
-        throw new Error(`Supabase responded ${response.status}: ${await response.text()}`);
+    if (!result.success) {
+        throw new Error('D1 insert did not succeed');
     }
 }
 

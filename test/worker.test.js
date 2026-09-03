@@ -23,6 +23,38 @@ function kvStub() {
 }
 
 /**
+ * In-memory stand-in for the D1 `DB` binding. Records every prepared statement
+ * with its bound values so tests can prove user input is bound, not
+ * interpolated into SQL.
+ *
+ * @param {{ fail?: boolean }} [options]
+ */
+function d1Stub({ fail = false } = {}) {
+    /** @type {Array<{ sql: string, values: unknown[] }>} */
+    const statements = [];
+
+    return {
+        statements,
+        /** @param {string} sql */
+        prepare(sql) {
+            return {
+                /** @param {...unknown} values */
+                bind(...values) {
+                    statements.push({ sql, values });
+                    return this;
+                },
+                async run() {
+                    if (fail) {
+                        throw new Error('D1 unavailable');
+                    }
+                    return { success: true };
+                },
+            };
+        },
+    };
+}
+
+/**
  * Deliberately partial stand-in for the Worker `Env` binding — typed loose so
  * each test can supply only the bindings it exercises.
  *
@@ -33,8 +65,7 @@ function envStub(overrides = {}) {
     return {
         ASSETS: { fetch: async () => new Response('asset', { status: 200 }) },
         RATE_LIMIT: kvStub(),
-        SUPABASE_URL: 'https://project.supabase.co',
-        SUPABASE_PUBLISHABLE_KEY: 'test-publishable-key',
+        DB: d1Stub(),
         FORMSUBMIT_TOKEN: 'test-token',
         ...overrides,
     };
@@ -174,11 +205,15 @@ describe('worker', () => {
             assert.equal((await worker.fetch(request, envStub())).status, 400);
         });
 
-        test('swallows honeypot hits without contacting any provider', async () => {
+        test('swallows honeypot hits without storing or contacting anything', async () => {
+            const env = envStub();
             const request = contactRequest({ ...validPayload, _honey: 'bot' });
-            const response = await worker.fetch(request, envStub());
-            assert.equal(response.status, 200);
+
+            const response = await worker.fetch(request, env);
+
+            assert.equal(response.status, 200, 'answer 200 so bots learn nothing');
             assert.equal(outbound.length, 0);
+            assert.equal(env.DB.statements.length, 0);
         });
 
         test('reports missing required fields', async () => {
@@ -206,12 +241,27 @@ describe('worker', () => {
             assert.equal(blocked.status, 429);
         });
 
-        test('stores in Supabase and notifies over FormSubmit', async () => {
-            const response = await worker.fetch(contactRequest(validPayload), envStub());
+        test('stores in D1 and notifies over FormSubmit', async () => {
+            const env = envStub();
+            const response = await worker.fetch(contactRequest(validPayload), env);
 
             assert.equal(response.status, 200);
-            assert.ok(outbound.some((call) => call.url.includes('/rest/v1/contact_messages')));
+            assert.equal(env.DB.statements.length, 1);
+            assert.match(env.DB.statements[0].sql, /INSERT INTO contact_messages/);
             assert.ok(outbound.some((call) => call.url.startsWith('https://formsubmit.co/ajax/')));
+        });
+
+        test('binds user input as parameters instead of interpolating it', async () => {
+            const env = envStub();
+            const injection = { ...validPayload, name: "Robert'); DROP TABLE contact_messages;--" };
+
+            const response = await worker.fetch(contactRequest(injection), env);
+
+            assert.equal(response.status, 200);
+            const [statement] = env.DB.statements;
+            assert.ok(!statement.sql.includes('DROP TABLE'), 'SQL text must carry no user input');
+            assert.equal(statement.values[0], injection.name);
+            assert.equal(statement.values.length, 8, 'one placeholder per column');
         });
 
         test('prefers Resend when it is configured', async () => {
@@ -232,10 +282,14 @@ describe('worker', () => {
             assert.equal(notification.reply_to, validPayload.email);
         });
 
-        test('never sends the raw Supabase key to the email provider', async () => {
-            await worker.fetch(contactRequest(validPayload), envStub());
+        test('never sends request metadata to the email provider', async () => {
+            const headers = { 'User-Agent': 'Mozilla/5.0 (test-agent)' };
+            await worker.fetch(contactRequest(validPayload, headers), envStub());
+
             const emailCall = outbound.find((call) => call.url.includes('formsubmit.co'));
-            assert.ok(!String(emailCall?.init?.body).includes('test-publishable-key'));
+            const body = String(emailCall?.init?.body);
+            assert.ok(!body.includes('test-agent'), 'user agent stays in the database only');
+            assert.ok(!body.includes('source_ip_country'));
         });
 
         test('returns 502 only when both storage and email fail', async () => {
@@ -243,20 +297,27 @@ describe('worker', () => {
                 async () => new Response('down', { status: 500 })
             );
 
-            const response = await worker.fetch(contactRequest(validPayload), envStub());
+            const env = envStub({ DB: d1Stub({ fail: true }) });
+            const response = await worker.fetch(contactRequest(validPayload), env);
             assert.equal(response.status, 502);
         });
 
-        test('still succeeds when only Supabase fails', async () => {
+        test('still succeeds when only the database fails', async () => {
+            const env = envStub({ DB: d1Stub({ fail: true }) });
+
+            const response = await worker.fetch(contactRequest(validPayload), env);
+            assert.equal(response.status, 200);
+        });
+
+        test('still succeeds when only the email provider fails', async () => {
             globalThis.fetch = /** @type {typeof fetch} */ (
-                async (/** @type {any} */ url) =>
-                    String(url).includes('supabase')
-                        ? new Response('down', { status: 500 })
-                        : new Response('{}', { status: 200 })
+                async () => new Response('down', { status: 500 })
             );
 
-            const response = await worker.fetch(contactRequest(validPayload), envStub());
+            const env = envStub();
+            const response = await worker.fetch(contactRequest(validPayload), env);
             assert.equal(response.status, 200);
+            assert.equal(env.DB.statements.length, 1);
         });
     });
 
