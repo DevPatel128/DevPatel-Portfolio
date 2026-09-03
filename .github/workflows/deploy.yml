@@ -40,7 +40,7 @@ jobs:
     timeout-minutes: 10
     environment:
       name: production
-      url: https://info.devpatel.workers.dev
+      url: https://info.dvpatel.workers.dev
 
     steps:
       - name: Check out
@@ -77,7 +77,7 @@ jobs:
         run: |
           for attempt in 1 2 3 4 5; do
             status=$(curl -s -o /dev/null -w '%{http_code}' \
-              https://info.devpatel.workers.dev/api/health || echo 000)
+              https://info.dvpatel.workers.dev/api/health || echo 000)
             echo "attempt $attempt: /api/health -> $status"
             # 503 means a binding is unconfigured, not that the deploy failed.
             if [ "$status" = "200" ] || [ "$status" = "503" ]; then

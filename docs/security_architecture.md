@@ -1,6 +1,6 @@
 # Security Architecture
 
-Scope: `info.devpatel.workers.dev` — a single-page static portfolio plus a
+Scope: `info.dvpatel.workers.dev` — a single-page static portfolio plus a
 three-route edge API. Structured on `Framework/STEP2_ENGINEERING_MASTER_PROMPT.md`
 §6 *Security Architecture*, trimmed to the sections a site of this shape actually
 has. Sections the framework lists that do not apply here (authentication,

@@ -1,6 +1,6 @@
 # Deployment Runbook
 
-Live URL: **https://info.devpatel.workers.dev**
+Live URL: **https://info.dvpatel.workers.dev**
 Worker: `info` · Account subdomain: `devpatel` · Repo: `DevPatel128/DevPatel-Portfolio`
 
 Covers `Framework/STEP2_ENGINEERING_MASTER_PROMPT.md` §8 *DevOps & Infrastructure*
@@ -85,14 +85,14 @@ npx wrangler secret put TURNSTILE_SITE_KEY
 
 ```bash
 # Bindings all wired
-curl -s https://info.devpatel.workers.dev/api/health | python3 -m json.tool
+curl -s https://info.dvpatel.workers.dev/api/health | python3 -m json.tool
 
 # Security headers present
-curl -sI https://info.devpatel.workers.dev/ | grep -iE 'content-security-policy|strict-transport|x-frame|x-content-type|referrer-policy|permissions-policy|cross-origin'
+curl -sI https://info.dvpatel.workers.dev/ | grep -iE 'content-security-policy|strict-transport|x-frame|x-content-type|referrer-policy|permissions-policy|cross-origin'
 
 # Engineering docs are not served
 for f in CLAUDE.md Coder.md docs/security_architecture.md .env.example wrangler.jsonc; do
-  curl -s -o /dev/null -w "$f %{http_code}\n" "https://info.devpatel.workers.dev/$f"
+  curl -s -o /dev/null -w "$f %{http_code}\n" "https://info.dvpatel.workers.dev/$f"
 done
 
 # Submissions landing

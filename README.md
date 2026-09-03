@@ -8,7 +8,7 @@ worth reading.
 
 Founder of Navdek. BTech CS. Turning curiosity into creation.
 
-**Live:** <https://info.devpatel.workers.dev>
+**Live:** <https://info.dvpatel.workers.dev>
 
 ---
 
