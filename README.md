@@ -6,7 +6,7 @@ This is the source behind my personal portfolio — built from scratch, shipped 
 obsession. No frameworks, no shortcuts. Just clean code, sharp design, and a story
 worth reading.
 
-Founder of Navdek. BTech CS. Turning curiosity into creation.
+Founder & Builder. BTech CS. Turning curiosity into creation.
 
 **Live:** <https://info.dvpatel.workers.dev>
 
