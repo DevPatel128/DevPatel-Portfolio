@@ -1157,17 +1157,6 @@ section {
   flex-wrap: wrap;
 }
 
-/* ── NAVDEK SECTION ── */
-#navdek {
-  background: var(--bg);
-  overflow: hidden;
-}
-
-.navdek-hero {
-  text-align: center;
-  margin-bottom: 80px;
-}
-
 .giant-text {
   font-family: var(--font-display);
   font-size: clamp(3.5rem, 10vw, 8rem);
@@ -1175,20 +1164,6 @@ section {
   line-height: 0.95;
   letter-spacing: -0.03em;
   margin-bottom: 20px;
-}
-
-.navdek-tagline {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-  max-width: 500px;
-  margin: 0 auto 40px;
-  line-height: 1.6;
-}
-
-.navdek-stats {
-  display: flex;
-  justify-content: center;
-  gap: 56px;
 }
 
 .navdek-stat {
@@ -1208,14 +1183,6 @@ section {
   font-size: 0.6rem;
   letter-spacing: 0.2em;
   color: var(--text-muted);
-}
-
-/* Navdek services */
-.navdek-services {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin-bottom: 80px;
 }
 
 .service-card {
@@ -1791,7 +1758,7 @@ section {
 
 .trust-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
 
@@ -1832,7 +1799,7 @@ section {
 
 .awards-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 24px;
 }
 
@@ -2290,10 +2257,6 @@ footer {
     gap: 40px;
   }
 
-  .navdek-services {
-    grid-template-columns: 1fr;
-  }
-
   .janki-services {
     grid-template-columns: 1fr;
   }
@@ -2414,11 +2377,6 @@ footer {
 
   .awards-grid {
     grid-template-columns: 1fr;
-  }
-
-  .navdek-stats {
-    flex-direction: column;
-    gap: 20px;
   }
 
   .janki-stats {

@@ -517,7 +517,7 @@ function autoResponse(origin) {
     return [
         'Hey — your message just landed in my inbox.',
         '',
-        "I'm Dev Patel — founder of Navdek and builder of fast, secure digital systems. If you've reached out, you're already thinking about building something worth launching. I want to hear all of it.",
+        "I'm Dev Patel — a builder and Cloud & Security engineer shipping fast, secure digital systems. If you've reached out, you're already thinking about building something worth launching. I want to hear all of it.",
         '',
         "I'll review your message and reply with a clear next step — typically within 24 hours.",
         '',
@@ -526,6 +526,6 @@ function autoResponse(origin) {
         'Stay curious. Stay building.',
         '',
         '— Dev Patel',
-        'Founder, Navdek',
+        'Founder & Builder',
     ].join('\n');
 }
