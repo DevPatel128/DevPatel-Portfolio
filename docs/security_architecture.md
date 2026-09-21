@@ -1,12 +1,15 @@
 # Security Architecture
 
+> **Status:** Draft · **Last updated:** 2026-09-21 · **Owner:** Dev Patel · **Version:** 0.1
+
 Scope: `info.dvpatel.workers.dev` — a single-page static portfolio plus a
-three-route edge API. Structured on `Framework/STEP2_ENGINEERING_MASTER_PROMPT.md`
-§6 *Security Architecture*, trimmed to the sections a site of this shape actually
-has. Sections the framework lists that do not apply here (authentication,
-authorization, AI safety, prompt-injection defence) are recorded as N/A rather
-than filled with invented content — the site has no accounts, no sessions and no
-model in the request path.
+three-route edge API. Structured on the Engineering Framework (§2 repository
+security, §6–§12 access control, audit, CIA and data, §19 incident response),
+trimmed to the sections a site of this shape actually has. Sections the
+framework lists that do not apply here (authentication, authorization,
+row-level security, AI safety, prompt-injection defence) are recorded as N/A
+rather than filled with invented content — the site has no accounts, no
+sessions, no public database endpoint and no model in the request path.
 
 ---
 
@@ -158,10 +161,11 @@ binding. This deletes a credential and an internet-facing surface outright.
 
 ## 6. Not applicable
 
-| Framework §6 item | Status |
+| Item | Status |
 |---|---|
-| Authentication | N/A — no accounts, no sessions, no login |
-| Authorization | N/A — no roles; the only writer is the Worker itself |
+| Authentication (§6) | N/A — no accounts, no sessions, no login |
+| Authorization (§7) | N/A — no roles; the only writer is the Worker itself |
+| Row-level security (§8) | N/A — D1 has no public endpoint and no client key; only the Worker's `DB` binding reaches it |
 | Encryption at rest | Handled by Cloudflare for D1 and KV; nothing custom |
 | Media protection | N/A — all images are public static assets |
 | AI safety / prompt-injection defence | N/A — no model in the request path |
