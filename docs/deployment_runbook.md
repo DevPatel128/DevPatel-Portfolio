@@ -1,10 +1,13 @@
 # Deployment Runbook
 
+> **Status:** Draft · **Last updated:** 2026-09-21 · **Owner:** Dev Patel · **Version:** 0.1
+
 Live URL: **https://info.dvpatel.workers.dev**
 Worker: `info` · Account subdomain: `devpatel` · Repo: `DevPatel128/DevPatel-Portfolio`
 
-Covers `Framework/STEP2_ENGINEERING_MASTER_PROMPT.md` §8 *DevOps & Infrastructure*
-— pipeline, monitoring, failover, backup, rollback.
+Covers the Engineering Framework's §16 *Deployment*, §17 *Observability*,
+§18 *Failure and recovery* and §20 *Production approval* — pipeline, monitoring,
+failover, backup, rollback.
 
 ---
 
@@ -91,7 +94,7 @@ curl -s https://info.dvpatel.workers.dev/api/health | python3 -m json.tool
 curl -sI https://info.dvpatel.workers.dev/ | grep -iE 'content-security-policy|strict-transport|x-frame|x-content-type|referrer-policy|permissions-policy|cross-origin'
 
 # Engineering docs are not served
-for f in CLAUDE.md Coder.md docs/security_architecture.md .env.example wrangler.jsonc; do
+for f in CLAUDE.md README.md docs/security_architecture.md .env.example wrangler.jsonc; do
   curl -s -o /dev/null -w "$f %{http_code}\n" "https://info.dvpatel.workers.dev/$f"
 done
 
